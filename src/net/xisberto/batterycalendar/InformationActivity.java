@@ -16,8 +16,7 @@ public class InformationActivity extends Activity {
 	private BroadcastReceiver information_receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			Log.i(context.getPackageName(), "Received broadcast in activity");
-			updateInfo(intent);
+			updateInfo();
 		}
 	};
 
@@ -25,9 +24,7 @@ public class InformationActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_information);
-		IntentFilter battery_filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-		Intent battery_intent = registerReceiver(null, battery_filter);
-		updateInfo(battery_intent);
+		updateInfo();
 	}
 
 	@Override
@@ -44,12 +41,14 @@ public class InformationActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.activity_information, menu);
 		return true;
 	}
 
-	private void updateInfo(Intent intent) {
+	private void updateInfo() {
+		IntentFilter battery_filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+		Intent intent = registerReceiver(null, battery_filter);
+		
 		TextView info_text = (TextView) findViewById(R.id.text_info);
 		CharSequence text = "No information available";
 		switch (intent.getIntExtra(BatteryManager.EXTRA_STATUS,

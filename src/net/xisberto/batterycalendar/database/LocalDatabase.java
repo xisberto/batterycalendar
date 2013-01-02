@@ -1,5 +1,6 @@
 package net.xisberto.batterycalendar.database;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import android.content.ContentValues;
@@ -8,7 +9,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.format.DateFormat;
-import android.util.Log;
 
 public class LocalDatabase {
 	private SQLiteDatabase database;
@@ -61,23 +61,25 @@ public class LocalDatabase {
 				LocalDatabaseOpenHelper.COLUMN_ID + " = " + event_id, null);
 	}
 	
-	public void logEvents() {
+	public ArrayList<String> logEvents() {
+		ArrayList<String> log_msg = new ArrayList<String>();
 		Cursor cursor = database.query(LocalDatabaseOpenHelper.TABLE_EVENTS,
 				columns, null, null, null, null, null);
 		
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
-			String msg = "Event: " + cursor.getLong(0)
+			String msg_line = "Event: " + cursor.getLong(0)
 					+ ", " + cursor.getString(1)
 					+ ", " + cursor.getString(2)
 					+ ", started " + cursor.getString(3)
 					+ " with level " + cursor.getString(5)
 					+ " ended " + cursor.getString(4)
 					+ " with level " + cursor.getString(6);
-			Log.i(LocalDatabase.class.getName(), msg);
+			log_msg.add(msg_line);
 			cursor.moveToNext();
 		}
 		cursor.close();
+		return log_msg;
 	}
 	
 }
