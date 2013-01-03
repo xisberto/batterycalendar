@@ -9,7 +9,8 @@ import android.preference.PreferenceManager;
 
 public class Preferences {
 	public static final String LAST_EVENT_ID = "last_event_id",
-			ACCOUNT_NAME = "account_name";
+			ACCOUNT_NAME = "account_name",
+			CALENDAR_ID = "calendar_id";
 
 	private SharedPreferences preferences;
 
@@ -31,6 +32,14 @@ public class Preferences {
 
 	public void setAccountName(String account_name) {
 		apply(preferences.edit().putString(ACCOUNT_NAME, account_name));
+	}
+	
+	public String getCalendarId() {
+		return preferences.getString(CALENDAR_ID, null);
+	}
+	
+	public void setCalendarId(String id) {
+		apply(preferences.edit().putString(CALENDAR_ID, id));
 	}
 
 	@SuppressLint("NewApi")

@@ -28,7 +28,7 @@ public class CalendarInfo implements Comparable<CalendarInfo>, Cloneable {
   static final String FIELDS = "id,summary";
   static final String FEED_FIELDS = "items(" + FIELDS + ")";
 
-  String id;
+  public String id;
   public String summary;
 
   CalendarInfo(String id, String summary) {

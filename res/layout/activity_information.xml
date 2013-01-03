@@ -25,7 +25,8 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/text_info"
         android:layout_below="@+id/text_info"
-        android:text="@string/txt_sync_status" />
+        android:text="@string/txt_sync_status"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
         android:id="@+id/btn_sync_off"

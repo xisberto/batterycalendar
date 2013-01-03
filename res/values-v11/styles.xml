@@ -7,5 +7,6 @@
     <style name="AppBaseTheme" parent="android:Theme.Holo">
         <!-- API 11 theme customizations can go here. -->
     </style>
+    <style name="ButtonBar" parent="@android:style/Holo.ButtonBar"></style>
 
 </resources>

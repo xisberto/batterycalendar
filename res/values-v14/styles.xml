@@ -8,5 +8,6 @@
     <style name="AppBaseTheme" parent="android:Theme.DeviceDefault">
         <!-- API 14 theme customizations can go here. -->
     </style>
+    <style name="ButtonBar" parent="@android:style/DeviceDefault.ButtonBar"></style>
 
 </resources>
