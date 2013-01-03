@@ -1,36 +1,97 @@
 package net.xisberto.batterycalendar;
 
-import android.os.BatteryManager;
-import android.os.Bundle;
+import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.BatteryManager;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-public class InformationActivity extends Activity {
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.samples.calendar.android.AsyncLoadCalendars;
+import com.google.api.services.samples.calendar.android.CalendarInfo;
+import com.google.api.services.samples.calendar.android.CalendarModel;
+
+public class InformationActivity extends Activity implements OnClickListener {
 	public static String ACTION_INFORM = "net.xisberto.batterycalendar.INFORMATION";
+
+	public static final int REQUEST_GOOGLE_PLAY_SERVICES = 0;
+
+	public static final int REQUEST_AUTHORIZATION = 1;
+
+	public static final int REQUEST_ACCOUNT_PICKER = 2;
+
+	public static final String TAG = "BatteryCalendar";
+
+	private GoogleAccountCredential credential;
+
+	public CalendarModel model = new CalendarModel();
+
+	public com.google.api.services.calendar.Calendar client;
+
+	public int numAsyncTasks;
+
+	private Preferences prefs;
+
+	private ArrayAdapter<CalendarInfo> adapter;
+
+	private Spinner spinner;
+
 	private BroadcastReceiver information_receiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			updateInfo();
+			updateBatteryInfo();
 		}
 	};
+
+	private HttpTransport transport = AndroidHttp.newCompatibleTransport();
+
+	private JsonFactory jsonFactory = new GsonFactory();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_information);
-		updateInfo();
+
+		prefs = new Preferences(this);
+
+		credential = GoogleAccountCredential.usingOAuth2(this,
+				CalendarScopes.CALENDAR);
+		credential.setSelectedAccountName(prefs.getAccountName());
+
+		// Calendar client
+		client = new com.google.api.services.calendar.Calendar.Builder(
+				transport, jsonFactory, credential).setApplicationName(
+				"BatteryCalendar/1.0").build();
+
+		spinner = (Spinner) findViewById(R.id.spinner_calendars);
+		findViewById(R.id.btn_select_account).setOnClickListener(this);
+		findViewById(R.id.btn_sync_off).setOnClickListener(this);
+
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
 		registerReceiver(information_receiver, new IntentFilter(ACTION_INFORM));
+		prepareUI();
 	}
 
 	@Override
@@ -40,15 +101,109 @@ public class InformationActivity extends Activity {
 	}
 
 	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch (requestCode) {
+		case REQUEST_GOOGLE_PLAY_SERVICES:
+			if (resultCode == Activity.RESULT_OK) {
+				haveGooglePlayServices();
+			} else {
+				checkGooglePlayServicesAvailable();
+			}
+			break;
+		case REQUEST_AUTHORIZATION:
+			if (resultCode == Activity.RESULT_OK) {
+				AsyncLoadCalendars.run(this);
+			} else {
+				chooseAccount();
+			}
+			break;
+		case REQUEST_ACCOUNT_PICKER:
+			if (resultCode == Activity.RESULT_OK && data != null
+					&& data.getExtras() != null) {
+				String accountName = data.getExtras().getString(
+						AccountManager.KEY_ACCOUNT_NAME);
+				if (accountName != null) {
+					credential.setSelectedAccountName(accountName);
+					prefs.setAccountName(accountName);
+					AsyncLoadCalendars.run(this);
+				}
+			}
+			break;
+		}
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.activity_information, menu);
 		return true;
 	}
 
-	private void updateInfo() {
-		IntentFilter battery_filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.btn_select_account:
+			if (checkGooglePlayServicesAvailable()) {
+				haveGooglePlayServices();
+			}
+			prepareUI();
+			break;
+		case R.id.btn_sync_off:
+			credential.setSelectedAccountName(null);
+			prefs.setAccountName(null);
+			prepareUI();
+		default:
+			break;
+		}
+	}
+
+	public void refreshView() {
+		adapter = new ArrayAdapter<CalendarInfo>(this,
+				android.R.layout.simple_spinner_item,
+				model.toSortedArray()) {
+
+			@Override
+			public View getView(int position, View convertView, ViewGroup parent) {
+				// by default it uses toString; override to use summary instead
+				TextView view = (TextView) super.getView(position, convertView,
+						parent);
+				CalendarInfo calendarInfo = getItem(position);
+				view.setText(calendarInfo.summary);
+				return view;
+			}
+			
+			@Override
+			public View getDropDownView(int position, View convertView, ViewGroup parent) {
+				TextView view = (TextView) super.getDropDownView(position, convertView, parent);
+				CalendarInfo calendarInfo = getItem(position);
+				view.setText(calendarInfo.summary);
+				Log.i(TAG, "Calendar: " + calendarInfo.summary);
+				return view;
+			}
+		};
+		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		spinner.setAdapter(adapter);
+	}
+
+	private void prepareUI() {
+		updateBatteryInfo();
+		String account_name = prefs.getAccountName();
+		TextView sync_status = (TextView) findViewById(R.id.txt_sync_status);
+		if (account_name == null) {
+			findViewById(R.id.btn_sync_off).setVisibility(View.GONE);
+			sync_status.setText(R.string.txt_sync_status);
+		} else {
+			findViewById(R.id.btn_sync_off).setVisibility(View.VISIBLE);
+			sync_status.setText(R.string.txt_sync_configured);
+			sync_status.append(" " + account_name);
+		}
+	}
+
+	private void updateBatteryInfo() {
+		IntentFilter battery_filter = new IntentFilter(
+				Intent.ACTION_BATTERY_CHANGED);
 		Intent intent = registerReceiver(null, battery_filter);
-		
+
 		TextView info_text = (TextView) findViewById(R.id.text_info);
 		CharSequence text = "No information available";
 		switch (intent.getIntExtra(BatteryManager.EXTRA_STATUS,
@@ -88,8 +243,47 @@ public class InformationActivity extends Activity {
 				+ intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0)
 				+ ", maximum is "
 				+ intent.getIntExtra(BatteryManager.EXTRA_SCALE, 101);
-		
+
 		info_text.setText(text);
+	}
+
+	public void showGooglePlayServicesAvailabilityErrorDialog(
+			final int connectionStatusCode) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
+						connectionStatusCode, InformationActivity.this,
+						REQUEST_GOOGLE_PLAY_SERVICES);
+				dialog.show();
+			}
+		});
+	}
+
+	/** Check that Google Play services APK is installed and up to date. */
+	private boolean checkGooglePlayServicesAvailable() {
+		final int connectionStatusCode = GooglePlayServicesUtil
+				.isGooglePlayServicesAvailable(this);
+		if (GooglePlayServicesUtil.isUserRecoverableError(connectionStatusCode)) {
+			showGooglePlayServicesAvailabilityErrorDialog(connectionStatusCode);
+			return false;
+		}
+		return true;
+	}
+
+	private void haveGooglePlayServices() {
+		// check if there is already an account selected
+		if (credential.getSelectedAccountName() == null) {
+			// ask user to choose account
+			chooseAccount();
+		} else {
+			// load calendars
+			AsyncLoadCalendars.run(this);
+		}
+	}
+
+	private void chooseAccount() {
+		startActivityForResult(credential.newChooseAccountIntent(),
+				REQUEST_ACCOUNT_PICKER);
 	}
 
 }

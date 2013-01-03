@@ -1,4 +1,5 @@
 gen
 bin
 libs
+libs-sources
 *.apk

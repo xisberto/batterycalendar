@@ -2,30 +2,37 @@ package net.xisberto.batterycalendar;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
 public class Preferences {
-	public static final String LAST_EVENT_ID = "last_event_id";
-	
-	private Context context;
+	public static final String LAST_EVENT_ID = "last_event_id",
+			ACCOUNT_NAME = "account_name";
+
+	private SharedPreferences preferences;
 
 	public Preferences(Context context) {
-		this.context = context;
+		preferences = PreferenceManager.getDefaultSharedPreferences(context);
 	}
 
 	public long getLastEventId() {
-		return PreferenceManager.getDefaultSharedPreferences(context)
-				.getLong(LAST_EVENT_ID, 0);
+		return preferences.getLong(LAST_EVENT_ID, 0);
 	}
-	
+
 	public void setLastEventId(long id) {
-		Editor editor = PreferenceManager.getDefaultSharedPreferences(context).edit();
-		editor.putLong(LAST_EVENT_ID, id);
-		apply(editor);
+		apply(preferences.edit().putLong(LAST_EVENT_ID, id));
 	}
-	
+
+	public String getAccountName() {
+		return preferences.getString(ACCOUNT_NAME, null);
+	}
+
+	public void setAccountName(String account_name) {
+		apply(preferences.edit().putString(ACCOUNT_NAME, account_name));
+	}
+
 	@SuppressLint("NewApi")
 	public void apply(Editor editor) {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
@@ -34,5 +41,5 @@ public class Preferences {
 			editor.commit();
 		}
 	}
-	
+
 }

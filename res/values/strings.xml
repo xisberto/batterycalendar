@@ -4,5 +4,13 @@
     <string name="app_name">Battery Calendar</string>
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
+    <string name="btn_select_account">Select a Google Account</string>
+    <string name="txt_sync_status">You can sync Battery Calendar with your Google Calendar</string>
+    <string name="txt_sync_configured">Google Calendar sync configured to </string>
+    <string name="btn_sync_off">Turn off sync</string>
+    <string name="txt_select_calendar">Select a calendar to sync</string>
+    <string name="btn_select_calendar">Select a calendar</string>
+    <string name="txt_set_device_name">Name this device</string>
+    <string name="hint_device_name">Device name</string>
 
 </resources>
