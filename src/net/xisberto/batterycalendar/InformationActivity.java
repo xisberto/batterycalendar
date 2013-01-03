@@ -2,57 +2,21 @@ package net.xisberto.batterycalendar;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.gson.GsonFactory;
-import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.samples.calendar.android.AsyncLoadCalendars;
-import com.google.api.services.samples.calendar.android.CalendarInfo;
-import com.google.api.services.samples.calendar.android.CalendarModel;
 
-public class InformationActivity extends Activity implements OnClickListener {
+public class InformationActivity extends SyncActivity implements OnClickListener {
 	public static String ACTION_INFORM = "net.xisberto.batterycalendar.INFORMATION";
-
-	public static final int REQUEST_GOOGLE_PLAY_SERVICES = 0;
-
-	public static final int REQUEST_AUTHORIZATION = 1;
-
-	public static final int REQUEST_ACCOUNT_PICKER = 2;
-
-	public static final String TAG = "BatteryCalendar";
-
-	private GoogleAccountCredential credential;
-
-	public CalendarModel model = new CalendarModel();
-
-	public com.google.api.services.calendar.Calendar client;
-
-	public int numAsyncTasks;
-
-	private Preferences prefs;
-
-	private ArrayAdapter<CalendarInfo> adapter;
-
-	private Spinner spinner;
 
 	private BroadcastReceiver information_receiver = new BroadcastReceiver() {
 		@Override
@@ -61,27 +25,11 @@ public class InformationActivity extends Activity implements OnClickListener {
 		}
 	};
 
-	private HttpTransport transport = AndroidHttp.newCompatibleTransport();
-
-	private JsonFactory jsonFactory = new GsonFactory();
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_information);
 
-		prefs = new Preferences(this);
-
-		credential = GoogleAccountCredential.usingOAuth2(this,
-				CalendarScopes.CALENDAR);
-		credential.setSelectedAccountName(prefs.getAccountName());
-
-		// Calendar client
-		client = new com.google.api.services.calendar.Calendar.Builder(
-				transport, jsonFactory, credential).setApplicationName(
-				"BatteryCalendar/1.0").build();
-
-		spinner = (Spinner) findViewById(R.id.spinner_calendars);
 		findViewById(R.id.btn_select_account).setOnClickListener(this);
 		findViewById(R.id.btn_sync_off).setOnClickListener(this);
 
@@ -113,7 +61,7 @@ public class InformationActivity extends Activity implements OnClickListener {
 			break;
 		case REQUEST_AUTHORIZATION:
 			if (resultCode == Activity.RESULT_OK) {
-				AsyncLoadCalendars.run(this);
+				startActivity(new Intent(this, CalendarListActivity.class));
 			} else {
 				chooseAccount();
 			}
@@ -126,7 +74,7 @@ public class InformationActivity extends Activity implements OnClickListener {
 				if (accountName != null) {
 					credential.setSelectedAccountName(accountName);
 					prefs.setAccountName(accountName);
-					AsyncLoadCalendars.run(this);
+					startActivity(new Intent(this, CalendarListActivity.class));
 				}
 			}
 			break;
@@ -158,31 +106,6 @@ public class InformationActivity extends Activity implements OnClickListener {
 	}
 
 	public void refreshView() {
-		adapter = new ArrayAdapter<CalendarInfo>(this,
-				android.R.layout.simple_spinner_item,
-				model.toSortedArray()) {
-
-			@Override
-			public View getView(int position, View convertView, ViewGroup parent) {
-				// by default it uses toString; override to use summary instead
-				TextView view = (TextView) super.getView(position, convertView,
-						parent);
-				CalendarInfo calendarInfo = getItem(position);
-				view.setText(calendarInfo.summary);
-				return view;
-			}
-			
-			@Override
-			public View getDropDownView(int position, View convertView, ViewGroup parent) {
-				TextView view = (TextView) super.getDropDownView(position, convertView, parent);
-				CalendarInfo calendarInfo = getItem(position);
-				view.setText(calendarInfo.summary);
-				Log.i(TAG, "Calendar: " + calendarInfo.summary);
-				return view;
-			}
-		};
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spinner.setAdapter(adapter);
 	}
 
 	private void prepareUI() {
@@ -247,18 +170,6 @@ public class InformationActivity extends Activity implements OnClickListener {
 		info_text.setText(text);
 	}
 
-	public void showGooglePlayServicesAvailabilityErrorDialog(
-			final int connectionStatusCode) {
-		runOnUiThread(new Runnable() {
-			public void run() {
-				Dialog dialog = GooglePlayServicesUtil.getErrorDialog(
-						connectionStatusCode, InformationActivity.this,
-						REQUEST_GOOGLE_PLAY_SERVICES);
-				dialog.show();
-			}
-		});
-	}
-
 	/** Check that Google Play services APK is installed and up to date. */
 	private boolean checkGooglePlayServicesAvailable() {
 		final int connectionStatusCode = GooglePlayServicesUtil
@@ -277,7 +188,7 @@ public class InformationActivity extends Activity implements OnClickListener {
 			chooseAccount();
 		} else {
 			// load calendars
-			AsyncLoadCalendars.run(this);
+			startActivity(new Intent(this, CalendarListActivity.class));
 		}
 	}
 

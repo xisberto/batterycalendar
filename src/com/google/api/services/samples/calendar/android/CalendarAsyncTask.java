@@ -17,6 +17,7 @@ package com.google.api.services.samples.calendar.android;
 import java.io.IOException;
 
 import net.xisberto.batterycalendar.InformationActivity;
+import net.xisberto.batterycalendar.SyncActivity;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -31,12 +32,12 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
  */
 abstract class CalendarAsyncTask extends AsyncTask<Void, Void, Boolean> {
 
-  final InformationActivity activity;
+  final SyncActivity activity;
   final CalendarModel model;
   final com.google.api.services.calendar.Calendar client;
   //private final View progressBar;
 
-  CalendarAsyncTask(InformationActivity activity) {
+  CalendarAsyncTask(SyncActivity activity) {
     this.activity = activity;
     model = activity.model;
     client = activity.client;

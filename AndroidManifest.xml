@@ -41,6 +41,7 @@
             android:enabled="true"
             android:exported="false" >
         </service>
+        <activity android:name="CalendarListActivity"></activity>
     </application>
 
 </manifest>
