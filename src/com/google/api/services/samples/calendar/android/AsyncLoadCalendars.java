@@ -33,7 +33,7 @@ public class AsyncLoadCalendars extends CalendarAsyncTask {
 
   @Override
   protected void doInBackground() throws IOException {
-    CalendarList feed = client.calendarList().list().setFields(CalendarInfo.FEED_FIELDS).execute();
+    CalendarList feed = client.calendarList().list().setFields(CalendarInfo.FEED_FIELDS).setMinAccessRole("writer").execute();
     model.reset(feed.getItems());
   }
 
