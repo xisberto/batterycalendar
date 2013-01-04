@@ -1,8 +1,10 @@
 package net.xisberto.batterycalendar;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -24,10 +26,10 @@ import com.google.api.services.samples.calendar.android.CalendarInfo;
 
 public class CalendarListActivity extends SyncCalendarActivity implements android.view.View.OnClickListener, OnItemClickListener {
 
-
 	private ArrayAdapter<CalendarInfo> adapter;
 	private ListView list;
 	private String selected_id = null;
+	public static final int REQUEST_DEVICE_NAME = 10;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -105,6 +107,18 @@ public class CalendarListActivity extends SyncCalendarActivity implements androi
 	}
 
 	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == REQUEST_DEVICE_NAME) {
+			if (resultCode == Activity.RESULT_OK) {
+				prefs.setDeviceName(data.getStringExtra(DeviceNameActivity.EXTRA_DEVICE_NAME));
+			} else {
+				prefs.setDeviceName(android.os.Build.MODEL);
+			}
+		}
+	}
+
+	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		CalendarInfo calendar = (CalendarInfo) parent.getAdapter().getItem(position);
 		selected_id = calendar.id;
@@ -118,6 +132,8 @@ public class CalendarListActivity extends SyncCalendarActivity implements androi
 			if (selected_id != null) {
 				Preferences prefs = new Preferences(getApplicationContext());
 				prefs.setCalendarId(selected_id);
+				startActivityForResult(new Intent(this, DeviceNameActivity.class), REQUEST_DEVICE_NAME);
+				finish();
 			} else {
 				finish();
 			}
@@ -142,6 +158,7 @@ public class CalendarListActivity extends SyncCalendarActivity implements androi
 	protected void createCalendar(String string) {
 		Calendar calendar = new Calendar();
 		calendar.setSummary(string);
+		calendar.setTimeZone(java.util.Calendar.getInstance().getTimeZone().getID());
 		new AsyncInsertCalendar(this, calendar).execute();
 		prepareUI();
 	}

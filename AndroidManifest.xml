@@ -27,7 +27,9 @@
             </intent-filter>
         </activity>
 
-        <receiver
+        <activity android:name="net.xisberto.batterycalendar.CalendarListActivity">
+        </activity><activity android:name="net.xisberto.batterycalendar.DeviceNameActivity" android:label="@string/title_activity_device_name">
+        </activity><receiver
             android:name="net.xisberto.batterycalendar.BatteryChangedReceiver"
             android:enabled="true"
             android:exported="true" >
@@ -37,15 +39,9 @@
             </intent-filter>
         </receiver>
 
-        <service
-            android:name="net.xisberto.batterycalendar.BatteryCalendarService"
-            android:enabled="true"
-            android:exported="false" >
-        </service>
-
-        <activity
-            android:name="net.xisberto.batterycalendar.CalendarListActivity" >
-        </activity>
+        <activity android:name="net.xisberto.batterycalendar.BatteryEventActivity"></activity>
+        
+        
     </application>
 
 </manifest>

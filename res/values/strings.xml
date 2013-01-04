@@ -11,5 +11,13 @@
     <string name="txt_set_device_name">Name this device</string>
     <string name="hint_device_name">Device name</string>
     <string name="btn_new_calendar">Create new calendar</string>
+    <string name="title_activity_device_name">DeviceNameActivity</string>
+    <string name="charging">Charging</string>
+    <string name="plugged">Charging by</string>
+    <string name="plugged_ac">AC</string>
+    <string name="plugged_usb">USB</string>
+    <string name="plugged_wireless">Wireless</string>
+    <string name="starting_level">Starting at</string>
+    <string name="ending_level">Ending at</string>
 
 </resources>
