@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -22,8 +23,12 @@ import com.google.api.services.samples.calendar.android.AsyncInsertCalendar;
 import com.google.api.services.samples.calendar.android.AsyncLoadCalendars;
 import com.google.api.services.samples.calendar.android.CalendarInfo;
 
+<<<<<<< HEAD
+public class CalendarListActivity extends SyncActivity implements OnItemClickListener, android.view.View.OnClickListener {
+=======
 public class CalendarListActivity extends SyncCalendarActivity {
 
+>>>>>>> 3ba6d5b70b26d591a6bfdcc7fddf51931a354072
 
 	private ArrayAdapter<CalendarInfo> adapter;
 	private ListView list;
@@ -32,6 +37,7 @@ public class CalendarListActivity extends SyncCalendarActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getWindow().requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY);
 		setContentView(R.layout.activity_calendarlist);
 
 		list = (ListView) findViewById(R.id.list);

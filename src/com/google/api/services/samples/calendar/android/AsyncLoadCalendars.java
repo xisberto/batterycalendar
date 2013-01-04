@@ -16,7 +16,7 @@ package com.google.api.services.samples.calendar.android;
 
 import java.io.IOException;
 
-import net.xisberto.batterycalendar.SyncActivity;
+import net.xisberto.batterycalendar.SyncCalendarActivity;
 
 import com.google.api.services.calendar.model.CalendarList;
 
@@ -27,7 +27,7 @@ import com.google.api.services.calendar.model.CalendarList;
  */
 public class AsyncLoadCalendars extends CalendarAsyncTask {
 
-  AsyncLoadCalendars(SyncActivity syncActivity) {
+  AsyncLoadCalendars(SyncCalendarActivity syncActivity) {
     super(syncActivity);
   }
 
@@ -37,7 +37,7 @@ public class AsyncLoadCalendars extends CalendarAsyncTask {
     model.reset(feed.getItems());
   }
 
-  public static void run(SyncActivity syncActivity) {
+  public static void run(SyncCalendarActivity syncActivity) {
     new AsyncLoadCalendars(syncActivity).execute();
   }
 }

@@ -1,5 +1,15 @@
 package net.xisberto.batterycalendar;
 
+<<<<<<< HEAD
+import android.app.Dialog;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+=======
+import android.app.Activity;
+import android.app.Dialog;
+import android.os.Bundle;
+>>>>>>> 3ba6d5b70b26d591a6bfdcc7fddf51931a354072
+
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
@@ -7,14 +17,15 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.calendar.CalendarScopes;
+<<<<<<< HEAD
 import com.google.api.services.samples.calendar.android.CalendarModel;
 
-import android.app.Activity;
-import android.app.Dialog;
-import android.os.Bundle;
+public abstract class SyncActivity extends FragmentActivity {
+
+=======
 
 public abstract class SyncActivity extends Activity {
-
+>>>>>>> 3ba6d5b70b26d591a6bfdcc7fddf51931a354072
 	public static final int REQUEST_GOOGLE_PLAY_SERVICES = 0;
 
 	public static final int REQUEST_AUTHORIZATION = 1;
