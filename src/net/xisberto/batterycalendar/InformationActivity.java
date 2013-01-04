@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.GooglePlayServicesUtil;
 
-public class InformationActivity extends SyncActivity implements OnClickListener {
+public class InformationActivity extends SyncCalendarActivity implements OnClickListener {
 	public static String ACTION_INFORM = "net.xisberto.batterycalendar.INFORMATION";
 
 	private BroadcastReceiver information_receiver = new BroadcastReceiver() {

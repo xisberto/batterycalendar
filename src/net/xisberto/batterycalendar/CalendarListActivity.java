@@ -10,7 +10,7 @@ import android.widget.TextView;
 import com.google.api.services.samples.calendar.android.AsyncLoadCalendars;
 import com.google.api.services.samples.calendar.android.CalendarInfo;
 
-public class CalendarListActivity extends SyncActivity {
+public class CalendarListActivity extends SyncCalendarActivity {
 
 
 	private ArrayAdapter<CalendarInfo> adapter;
