@@ -4,7 +4,7 @@
     <item
         android:id="@+id/item_new_calendar"
         android:icon="@android:drawable/ic_menu_my_calendar"
-        android:showAsAction="always|withText"
+        android:showAsAction="always"
         android:title="@string/btn_new_calendar">
     </item>
 

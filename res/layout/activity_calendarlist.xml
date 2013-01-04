@@ -12,7 +12,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:text="@string/txt_select_calendar" />
+        android:text="@string/txt_select_calendar"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ListView
         android:id="@+id/list"
@@ -31,30 +32,27 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true" />
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/bottom_bar"
-        style="@style/ButtonBar"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" >
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal" >
 
         <Button
             android:id="@+id/btn_cancel"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
+            android:layout_weight="1"
             android:text="@android:string/cancel" />
 
         <Button
-            android:id="@+id/button1"
-            android:layout_width="wrap_content"
+            android:id="@+id/btn_ok"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentTop="true"
+            android:layout_weight="1"
             android:text="@android:string/ok" />
-
-    </RelativeLayout>
+    </LinearLayout>
 
 </RelativeLayout>

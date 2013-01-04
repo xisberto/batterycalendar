@@ -4,10 +4,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -21,17 +23,21 @@ import com.google.api.services.samples.calendar.android.AsyncInsertCalendar;
 import com.google.api.services.samples.calendar.android.AsyncLoadCalendars;
 import com.google.api.services.samples.calendar.android.CalendarInfo;
 
-public class CalendarListActivity extends SyncActivity implements OnItemClickListener {
+public class CalendarListActivity extends SyncActivity implements OnItemClickListener, android.view.View.OnClickListener {
 
 	private ArrayAdapter<CalendarInfo> adapter;
 	private ListView list;
+	private String selected_id = null;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		getWindow().requestFeature(Window.FEATURE_ACTION_MODE_OVERLAY);
 		setContentView(R.layout.activity_calendarlist);
 
 		list = (ListView) findViewById(R.id.list);
+		findViewById(R.id.btn_cancel).setOnClickListener(this);
+		findViewById(R.id.btn_ok).setOnClickListener(this);
 		
 		prepareUI();
 	}
@@ -71,6 +77,8 @@ public class CalendarListActivity extends SyncActivity implements OnItemClickLis
 
 	@Override
 	public void refreshView() {
+		Preferences prefs = new Preferences(getApplicationContext());
+		final String saved_id = prefs.getCalendarId();
 		adapter = new ArrayAdapter<CalendarInfo>(this,
 				android.R.layout.simple_list_item_single_choice,
 				model.toSortedArray()) {
@@ -82,6 +90,12 @@ public class CalendarListActivity extends SyncActivity implements OnItemClickLis
 						parent);
 				CalendarInfo calendarInfo = getItem(position);
 				view.setText(calendarInfo.summary);
+				Log.i(TAG, calendarInfo.id);
+				if (calendarInfo.id.equals(saved_id)) {
+					list.setItemChecked(position, true);
+					selected_id = calendarInfo.id;
+					Log.i(TAG, " is selected");
+				}
 				return view;
 			}
 		};
@@ -94,9 +108,27 @@ public class CalendarListActivity extends SyncActivity implements OnItemClickLis
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 		CalendarInfo calendar = (CalendarInfo) parent.getAdapter().getItem(position);
+		selected_id = calendar.id;
 		Toast.makeText(this, calendar.id, Toast.LENGTH_SHORT).show();
-		//Preferences prefs = new Preferences(getApplicationContext());
-		//prefs.setCalendarId(calendar.id);
+	}
+
+	@Override
+	public void onClick(View view) {
+		switch (view.getId()) {
+		case R.id.btn_ok:
+			if (selected_id != null) {
+				Preferences prefs = new Preferences(getApplicationContext());
+				prefs.setCalendarId(selected_id);
+			} else {
+				finish();
+			}
+			break;
+		case R.id.btn_cancel:
+			finish();
+			break;
+		default:
+			break;
+		}
 	}
 
 	private void prepareUI() {
