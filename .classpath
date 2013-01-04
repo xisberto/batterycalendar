@@ -6,7 +6,7 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="lib" path="libs/google-api-client-1.12.0-beta.jar"/>
 	<classpathentry kind="lib" path="libs/google-api-client-android-1.12.0-beta.jar"/>
-	<classpathentry kind="lib" path="libs/google-api-services-calendar-v3-rev22-1.12.0-beta.jar"/>
+	<classpathentry kind="lib" path="libs/google-api-services-calendar-v3-rev22-1.12.0-beta.jar" sourcepath="libs/google-api-services-calendar-v3-rev22-1.12.0-beta-sources.jar"/>
 	<classpathentry kind="lib" path="libs/google-http-client-1.12.0-beta.jar"/>
 	<classpathentry kind="lib" path="libs/google-http-client-android-1.12.0-beta.jar"/>
 	<classpathentry kind="lib" path="libs/google-http-client-gson-1.12.0-beta.jar"/>

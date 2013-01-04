@@ -10,9 +10,10 @@ public class BatteryChangedReceiver extends BroadcastReceiver {
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		Intent intent_service = new Intent(context, BatteryCalendarService.class);
-		intent_service.setAction(intent.getAction());
-		context.startService(intent_service);
+		Intent intent_event = new Intent(context, BatteryEventActivity.class);
+		intent_event.setAction(intent.getAction());
+		intent_event.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		context.startActivity(intent_event);
 		
 		Intent intent_information = new Intent(InformationActivity.ACTION_INFORM);
 		context.sendBroadcast(intent_information);

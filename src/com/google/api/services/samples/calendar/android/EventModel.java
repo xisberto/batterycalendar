@@ -12,25 +12,25 @@ public class EventModel {
 
   private final Map<String, EventInfo> events = new HashMap<String, EventInfo>();
 
-  int size() {
+  public int size() {
     synchronized (events) {
       return events.size();
     }
   }
 
-  void remove(String id) {
+  public void remove(String id) {
     synchronized (events) {
       events.remove(id);
     }
   }
 
-  EventInfo get(String id) {
+  public EventInfo get(String id) {
     synchronized (events) {
       return events.get(id);
     }
   }
-
-  void add(Event eventToAdd) {
+  
+  public void add(Event eventToAdd) {
     synchronized (events) {
       EventInfo found = get(eventToAdd.getId());
       if (found == null) {

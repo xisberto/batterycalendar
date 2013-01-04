@@ -5,8 +5,11 @@ import com.google.api.services.calendar.model.Event;
 
 public class EventInfo implements Comparable<EventInfo>, Cloneable {
 
-	public static final String FIELDS = "id,summary,description,start,end";
-	public static final String FEED_FIELDS = "items(" + FIELDS + ")";
+	public static final String
+		INSERT_FIELDS = "id,summary,description,start,end",
+		UPDATE_FIELDS = "id,description,end";
+	
+	public static final String FEED_FIELDS = "items(" + INSERT_FIELDS + ")";
 
 	public String id, summary, description;
 	public DateTime start, end;

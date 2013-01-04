@@ -20,7 +20,7 @@ public abstract class SyncActivity extends Activity {
 
 	public static final int REQUEST_ACCOUNT_PICKER = 2;
 	
-	public static final String TAG = "BatteryCalendar";
+	public static String TAG = "";
 
 	protected Preferences prefs;
 
@@ -35,6 +35,8 @@ public abstract class SyncActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		TAG = getPackageName();
 
 		prefs = new Preferences(this);
 		

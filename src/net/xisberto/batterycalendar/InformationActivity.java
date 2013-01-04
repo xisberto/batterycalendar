@@ -105,6 +105,7 @@ public class InformationActivity extends SyncCalendarActivity implements OnClick
 		}
 	}
 
+	@Override
 	public void refreshView() {
 	}
 

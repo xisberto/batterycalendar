@@ -8,17 +8,17 @@ import com.google.api.services.calendar.model.Event;
 
 public class AsyncInsertEvent extends EventAsyncTask {
 	private final Event entry;
-	private final String calendar_id;
+	private final String calendarId;
 
-	AsyncInsertEvent(SyncEventActivity activity, String calendar_id, Event entry) {
+	public AsyncInsertEvent(SyncEventActivity activity, String calendarId, Event entry) {
 		super(activity);
 		this.entry = entry;
-		this.calendar_id = calendar_id;
+		this.calendarId = calendarId;
 	}
 
 	@Override
 	protected void doInBackground() throws IOException {
-		Event event = client.events().insert(calendar_id, entry).execute();
+		Event event = client.events().insert(calendarId, entry).execute();
 		model.add(event);
 	}
 

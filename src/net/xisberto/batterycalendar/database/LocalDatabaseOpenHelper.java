@@ -9,6 +9,7 @@ public class LocalDatabaseOpenHelper extends SQLiteOpenHelper {
 
 	public static final String TABLE_EVENTS = "events";
 	public static final String COLUMN_ID = "_id",
+			COLUMN_GOOGLE_ID = "google_id",
 			COLUMN_NAME = "name",
 			COLUMN_DETAILS = "details",
 			COLUMN_DATE_START = "date_start",
@@ -17,7 +18,7 @@ public class LocalDatabaseOpenHelper extends SQLiteOpenHelper {
 			COLUMN_LEVEL_END = "level_end";
 
 	private static final String DATABASE_NAME = "events.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	public LocalDatabaseOpenHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -27,6 +28,7 @@ public class LocalDatabaseOpenHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase database) {
 		database.execSQL("CREATE TABLE " + TABLE_EVENTS + "(" 
 				+ COLUMN_ID	+ " integer primary key autoincrement, "
+				+ COLUMN_GOOGLE_ID + " text, "
 				+ COLUMN_NAME + " text not null, "
 				+ COLUMN_DETAILS + " text, "
 				+ COLUMN_DATE_START + " text not null, "
