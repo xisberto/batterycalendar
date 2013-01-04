@@ -22,7 +22,7 @@ import com.google.api.services.samples.calendar.android.AsyncInsertCalendar;
 import com.google.api.services.samples.calendar.android.AsyncLoadCalendars;
 import com.google.api.services.samples.calendar.android.CalendarInfo;
 
-public class CalendarListActivity extends SyncCalendarActivity {
+public class CalendarListActivity extends SyncCalendarActivity implements android.view.View.OnClickListener, OnItemClickListener {
 
 
 	private ArrayAdapter<CalendarInfo> adapter;

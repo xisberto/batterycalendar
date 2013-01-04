@@ -14,11 +14,11 @@
 
 package com.google.api.services.samples.calendar.android;
 
-import com.google.api.services.calendar.model.Calendar;
-
 import java.io.IOException;
 
-import net.xisberto.batterycalendar.SyncActivity;
+import net.xisberto.batterycalendar.SyncCalendarActivity;
+
+import com.google.api.services.calendar.model.Calendar;
 
 /**
  * Asynchronously insert a new calendar.
@@ -29,7 +29,7 @@ public class AsyncInsertCalendar extends CalendarAsyncTask {
 
   private final Calendar entry;
 
-  public AsyncInsertCalendar(SyncActivity calendarSample, Calendar entry) {
+  public AsyncInsertCalendar(SyncCalendarActivity calendarSample, Calendar entry) {
     super(calendarSample);
     this.entry = entry;
   }
