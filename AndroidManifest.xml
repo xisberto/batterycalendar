@@ -39,7 +39,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name="net.xisberto.batterycalendar.BatteryEventActivity"></activity>
+        <activity android:name="net.xisberto.batterycalendar.BatteryEventActivity" android:theme="@android:style/Theme.NoDisplay"></activity>
         
         
     </application>

@@ -22,33 +22,39 @@ public class BatteryEventActivity extends SyncEventActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setTheme(android.R.style.Theme_NoDisplay);
 
-		synchronized (this) {
-			try {
-				Preferences prefs = new Preferences(getApplicationContext());
-				LocalDatabase db = new LocalDatabase(getApplicationContext());
-				db.open();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Preferences prefs = new Preferences(getApplicationContext());
+					LocalDatabase db = new LocalDatabase(
+							getApplicationContext());
+					db.open();
 
-				Intent battery_intent = registerReceiver(null, new IntentFilter(
-						Intent.ACTION_BATTERY_CHANGED));
+					Intent battery_intent = registerReceiver(null,
+							new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
-				Log.i(TAG, getIntent().getAction());
-				if (getIntent().getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
-					startEvent(db, prefs, battery_intent.getExtras());
-				} else if (getIntent().getAction().equals(
-						Intent.ACTION_POWER_DISCONNECTED)) {
-					endEvent(db, prefs, battery_intent.getExtras());
+					Log.i(TAG, getIntent().getAction());
+					if (getIntent().getAction().equals(
+							Intent.ACTION_POWER_CONNECTED)) {
+						startEvent(db, prefs, battery_intent.getExtras());
+					} else if (getIntent().getAction().equals(
+							Intent.ACTION_POWER_DISCONNECTED)) {
+						endEvent(db, prefs, battery_intent.getExtras());
+					}
+
+					for (String msg : db.logEvents()) {
+						Log.i(TAG, msg);
+					}
+
+					db.close();
+				} catch (Exception e) {
+					Log.e(TAG, Log.getStackTraceString(e));
 				}
+			}
+		}).start();
 
-				for (String msg : db.logEvents()) {
-					Log.i(TAG, msg);
-				}
-
-				db.close();
-			} catch (Exception e) {
-			}	
-		}
 		finish();
 	}
 
@@ -61,16 +67,19 @@ public class BatteryEventActivity extends SyncEventActivity {
 		LocalDatabase db = new LocalDatabase(getApplicationContext());
 		db.open();
 		long last_event_id = prefs.getLastEventId();
-		
-		Log.i(TAG, "Saving Google id " + events[events.length-1].id + " on event with id " + last_event_id);
-		
-		db.saveGoogleId(last_event_id, events[events.length-1].id);
+
+		Log.i(TAG, "Saving Google id " + events[events.length - 1].id
+				+ " on event with id " + last_event_id);
+
+		db.saveGoogleId(last_event_id, events[events.length - 1].id);
 		db.close();
 	}
 
 	private void startEvent(LocalDatabase db, Preferences prefs, Bundle extras) {
-		String charging = getResources().getString(R.string.charging)+ " " + prefs.getDeviceName();
-		
+		String charging = getResources().getString(R.string.charging) + " "
+				+ prefs.getDeviceName();
+
+		// Gathers the plug details
 		String plugged = getResources().getString(R.string.plugged) + " ";
 		int plugged_by = extras.getInt(BatteryManager.EXTRA_PLUGGED, 0);
 		switch (plugged_by) {
@@ -81,57 +90,70 @@ public class BatteryEventActivity extends SyncEventActivity {
 			plugged = plugged + getResources().getString(R.string.plugged_usb);
 			break;
 		case BatteryManager.BATTERY_PLUGGED_WIRELESS:
-			plugged = plugged + getResources().getString(R.string.plugged_wireless);
+			plugged = plugged
+					+ getResources().getString(R.string.plugged_wireless);
 			break;
 		default:
 			break;
 		}
-		
+
+		// Gathers the level info
 		int level = extras.getInt(BatteryManager.EXTRA_LEVEL, 0);
-		String starting_level = getResources().getString(R.string.starting_level) + " " + level + "%";
-		
-		long last_event_id = db.startEvent(charging, "details", Calendar.getInstance(), level);
+		String starting_level = getResources().getString(
+				R.string.starting_level)
+				+ " " + level + "%";
+
+		String details = plugged + "\n" + starting_level;
+
+		// Saving event to local database
+		long last_event_id = db.startEvent(charging, details,
+				Calendar.getInstance(), level);
 		prefs.setLastEventId(last_event_id);
-		
+
+		// Posting event to Google Calendar
 		EventDateTime start = new EventDateTime();
 		start.setDateTime(new DateTime(Calendar.getInstance().getTimeInMillis()));
 		start.setTimeZone(TimeZone.getDefault().getID());
 		EventDateTime end = new EventDateTime();
 		end.setDateTime(new DateTime(Calendar.getInstance().getTimeInMillis()));
 		end.setTimeZone(TimeZone.getDefault().getID());
-		
-		Event event = new Event()
-			.setSummary(charging)
-			.setDescription(plugged+"\n"+starting_level)
-			.setStart(start)
-			.setEnd(end);
-		
+
+		Event event = new Event().setSummary(charging).setDescription(details)
+				.setStart(start).setEnd(end);
+
 		new AsyncInsertEvent(this, prefs.getCalendarId(), event).execute();
 	}
 
 	private void endEvent(LocalDatabase db, Preferences prefs, Bundle extras) {
 		Log.i(TAG, "Device disconnected");
 		int level = extras.getInt(BatteryManager.EXTRA_LEVEL, 0);
-		String ending_level = getResources().getString(R.string.ending_level) + " " + level + "%";
+		String ending_level = getResources().getString(R.string.ending_level)
+				+ " " + level + "%";
 		long last_event_id = prefs.getLastEventId();
 		db.endEvent(last_event_id, Calendar.getInstance(), level);
 
 		String google_id = db.getGoogleId(last_event_id);
-		Log.i(TAG, "Ending GoogleId " + google_id + " in TimeZone " + TimeZone.getDefault().getID());
-		
-		EventInfo event_info = model.get(google_id);
+		Event event = db.getEvent(last_event_id);
+		event.setDescription(event.getDescription() + "\n" + ending_level);
+
 		EventDateTime end = new EventDateTime();
-		end.setDateTime(event_info.end);
+		end.setDateTime(new DateTime(Calendar.getInstance().getTimeInMillis()));
 		end.setTimeZone(TimeZone.getDefault().getID());
-		
-		Log.i(TAG, "Ending event at " + end.getDateTime().toStringRfc3339() + " " + ending_level);
-		
-		Event event = new Event()
-			.setId(google_id)
-			.setDescription(event_info.description + "\n" + ending_level)
-			.setEnd(end);
-		
-		new AsyncUpdateEvent(this, prefs.getCalendarId(), google_id, event).execute();
+		event.setEnd(end);
+
+		EventDateTime start = event.getStart();
+		if (start == null) {
+			start = new EventDateTime();
+			start.setTimeZone(TimeZone.getDefault().getID());
+		} else {
+			start.setTimeZone(TimeZone.getDefault().getID());
+		}
+
+		Log.i(TAG, "Ending event at " + end.getDateTime().toStringRfc3339()
+				+ " " + ending_level);
+
+		new AsyncUpdateEvent(this, prefs.getCalendarId(), google_id, event)
+				.execute();
 	}
 
 }
