@@ -24,7 +24,8 @@ import com.google.api.services.samples.calendar.android.AsyncInsertCalendar;
 import com.google.api.services.samples.calendar.android.AsyncLoadCalendars;
 import com.google.api.services.samples.calendar.android.CalendarInfo;
 
-public class CalendarListActivity extends SyncCalendarActivity implements android.view.View.OnClickListener, OnItemClickListener {
+public class CalendarListActivity extends SyncCalendarActivity implements
+		android.view.View.OnClickListener, OnItemClickListener {
 
 	private ArrayAdapter<CalendarInfo> adapter;
 	private ListView list;
@@ -39,7 +40,11 @@ public class CalendarListActivity extends SyncCalendarActivity implements androi
 		list = (ListView) findViewById(R.id.list);
 		findViewById(R.id.btn_cancel).setOnClickListener(this);
 		findViewById(R.id.btn_ok).setOnClickListener(this);
-		
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
 		prepareUI();
 	}
 
@@ -55,25 +60,27 @@ public class CalendarListActivity extends SyncCalendarActivity implements androi
 		case R.id.item_new_calendar:
 			final EditText edit_text = new EditText(this);
 			AlertDialog dialog = new AlertDialog.Builder(this)
-				.setTitle(R.string.btn_new_calendar)
-				.setView(edit_text)
-				.setPositiveButton(android.R.string.ok, new OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface arg0, int arg1) {
-						createCalendar(edit_text.getText().toString());
-					}
-				})
-				.setNegativeButton(android.R.string.cancel, null)
-				.create();
+					.setTitle(R.string.btn_new_calendar)
+					.setView(edit_text)
+					.setPositiveButton(android.R.string.ok,
+							new OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface arg0,
+										int arg1) {
+									createCalendar(edit_text.getText()
+											.toString());
+								}
+							}).setNegativeButton(android.R.string.cancel, null)
+					.create();
 			dialog.show();
-			
+
 			return true;
 
 		default:
 			return super.onOptionsItemSelected(item);
 		}
-		
+
 	}
 
 	@Override
@@ -110,17 +117,22 @@ public class CalendarListActivity extends SyncCalendarActivity implements androi
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_DEVICE_NAME) {
-			if (resultCode == Activity.RESULT_OK) {
-				prefs.setDeviceName(data.getStringExtra(DeviceNameActivity.EXTRA_DEVICE_NAME));
+			if (resultCode == Activity.RESULT_OK
+					&& data.getStringExtra(DeviceNameActivity.EXTRA_DEVICE_NAME) != null) {
+				prefs.setDeviceName(data
+						.getStringExtra(DeviceNameActivity.EXTRA_DEVICE_NAME));
 			} else {
 				prefs.setDeviceName(android.os.Build.MODEL);
 			}
+			finish();
 		}
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		CalendarInfo calendar = (CalendarInfo) parent.getAdapter().getItem(position);
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		CalendarInfo calendar = (CalendarInfo) parent.getAdapter().getItem(
+				position);
 		selected_id = calendar.id;
 		Toast.makeText(this, calendar.id, Toast.LENGTH_SHORT).show();
 	}
@@ -132,8 +144,8 @@ public class CalendarListActivity extends SyncCalendarActivity implements androi
 			if (selected_id != null) {
 				Preferences prefs = new Preferences(getApplicationContext());
 				prefs.setCalendarId(selected_id);
-				startActivityForResult(new Intent(this, DeviceNameActivity.class), REQUEST_DEVICE_NAME);
-				finish();
+				startActivityForResult(new Intent(this,
+						DeviceNameActivity.class), REQUEST_DEVICE_NAME);
 			} else {
 				finish();
 			}
@@ -149,18 +161,19 @@ public class CalendarListActivity extends SyncCalendarActivity implements androi
 	private void prepareUI() {
 		list.setVisibility(View.INVISIBLE);
 		list.setOnItemClickListener(this);
-		
+
 		findViewById(R.id.progress).setVisibility(View.VISIBLE);
-		
+
 		AsyncLoadCalendars.run(this);
 	}
-	
+
 	protected void createCalendar(String string) {
 		Calendar calendar = new Calendar();
 		calendar.setSummary(string);
-		calendar.setTimeZone(java.util.Calendar.getInstance().getTimeZone().getID());
+		calendar.setTimeZone(java.util.Calendar.getInstance().getTimeZone()
+				.getID());
 		new AsyncInsertCalendar(this, calendar).execute();
 		prepareUI();
 	}
-	
+
 }
