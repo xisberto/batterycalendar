@@ -61,7 +61,7 @@ abstract class MyAsyncTask extends AsyncTask<Void, Void, Boolean> {
   }
 
   @Override
-  protected final void onPostExecute(Boolean success) {
+  protected void onPostExecute(Boolean success) {
     super.onPostExecute(success);
     if (success) {
       activity.refreshView();

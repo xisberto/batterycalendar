@@ -1,7 +1,6 @@
 package net.xisberto.batterycalendar;
 
 import java.util.Calendar;
-import java.util.TimeZone;
 
 import net.xisberto.batterycalendar.database.LocalDatabase;
 import android.content.Intent;
@@ -63,6 +62,7 @@ public class BatteryEventActivity extends SyncEventActivity {
 	 */
 	@Override
 	public void refreshView() {
+		Log.i(TAG, "Thread finished job");
 		EventInfo[] events = model.toSortedArray();
 		LocalDatabase db = new LocalDatabase(getApplicationContext());
 		db.open();
@@ -113,10 +113,10 @@ public class BatteryEventActivity extends SyncEventActivity {
 		// Posting event to Google Calendar
 		EventDateTime start = new EventDateTime();
 		start.setDateTime(new DateTime(Calendar.getInstance().getTimeInMillis()));
-		start.setTimeZone(TimeZone.getDefault().getID());
+		start.setTimeZone("UTC");
 		EventDateTime end = new EventDateTime();
 		end.setDateTime(new DateTime(Calendar.getInstance().getTimeInMillis()));
-		end.setTimeZone(TimeZone.getDefault().getID());
+		end.setTimeZone("UTC");
 
 		Event event = new Event().setSummary(charging).setDescription(details)
 				.setStart(start).setEnd(end);
@@ -130,29 +130,23 @@ public class BatteryEventActivity extends SyncEventActivity {
 		String ending_level = getResources().getString(R.string.ending_level)
 				+ " " + level + "%";
 		long last_event_id = prefs.getLastEventId();
-		db.endEvent(last_event_id, Calendar.getInstance(), level);
+		Event event = db.endEvent(last_event_id, Calendar.getInstance(), level);
 
-		String google_id = db.getGoogleId(last_event_id);
-		Event event = db.getEvent(last_event_id);
 		event.setDescription(event.getDescription() + "\n" + ending_level);
+		db.updateDetails(last_event_id, event.getDescription() + "\n" + ending_level);
 
 		EventDateTime end = new EventDateTime();
 		end.setDateTime(new DateTime(Calendar.getInstance().getTimeInMillis()));
-		end.setTimeZone(TimeZone.getDefault().getID());
+		end.setTimeZone("UTC");
 		event.setEnd(end);
 
 		EventDateTime start = event.getStart();
-		if (start == null) {
-			start = new EventDateTime();
-			start.setTimeZone(TimeZone.getDefault().getID());
-		} else {
-			start.setTimeZone(TimeZone.getDefault().getID());
-		}
+		start.setTimeZone("UTC");
 
 		Log.i(TAG, "Ending event at " + end.getDateTime().toStringRfc3339()
 				+ " " + ending_level);
 
-		new AsyncUpdateEvent(this, prefs.getCalendarId(), google_id, event)
+		new AsyncUpdateEvent(this, prefs.getCalendarId(), event)
 				.execute();
 	}
 

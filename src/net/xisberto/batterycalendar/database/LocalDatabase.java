@@ -55,7 +55,7 @@ public class LocalDatabase {
 		return database.insert(LocalDatabaseOpenHelper.TABLE_EVENTS, null, cv);
 	}
 
-	public void endEvent(long event_id, Calendar date_end, int level_end) {
+	public Event endEvent(long event_id, Calendar date_end, int level_end) {
 		DateTime date_time = new DateTime(date_end.getTimeInMillis());
 		String formated_date_end = date_time.toStringRfc3339();
 
@@ -63,6 +63,15 @@ public class LocalDatabase {
 		values.put(LocalDatabaseOpenHelper.COLUMN_DATE_END, formated_date_end);
 		values.put(LocalDatabaseOpenHelper.COLUMN_LEVEL_END, level_end);
 
+		database.update(LocalDatabaseOpenHelper.TABLE_EVENTS, values,
+				LocalDatabaseOpenHelper.COLUMN_ID + " = " + event_id, null);
+		
+		return getEvent(event_id);
+	}
+	
+	public void updateDetails(long event_id, String details) {
+		ContentValues values = new ContentValues();
+		values.put(LocalDatabaseOpenHelper.COLUMN_DETAILS, details);
 		database.update(LocalDatabaseOpenHelper.TABLE_EVENTS, values,
 				LocalDatabaseOpenHelper.COLUMN_ID + " = " + event_id, null);
 	}
